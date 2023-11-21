@@ -22,17 +22,20 @@ patchSize = 100 # size of each patch, in pixels
 # then returns these values as a tuple
 #####################
 def getUserInput():
+	return 5, ["red", "green", "blue"] # for testing
+
 	gridSize = None
-	validGrid = [3, 7, 9]
+	validGrid = [5, 7, 9]
 
 	colours = []
 	validColours = ["red", "green", "blue", "magenta", "orange", "yellow", "cyan"]
 
+	print(f"= GRID SIZE =\nChoose one from {validGrid}")
 	while True:
-		givenSize = input("Enter the grid size: ")
+		givenSize = input("🧱 Enter the grid size: ")
 		
 		if not givenSize.isdigit():  # check if input is a number
-			print("Invalid grid size entered!\nMust be a number.")
+			print("😔 That doesn't look like a number...\n")
 			continue
 
 		# if it is a number, check if it's a valid grid size
@@ -40,22 +43,27 @@ def getUserInput():
 			gridSize = int(givenSize)  # update global grid variable to input
 			break
 		else:
-			print(f"Invalid grid size entered!\nMust be one of {validGrid}")
+			print(f"😔 Your grid size must be one of {validGrid}\n" )
+			# can't use .join() to make this look nicer :(
 
-
+	
+	print(f"\n= COLOURS =\nChoose 3 from {validColours}")
 	while len(colours) < 3: # request 3 colours
 		while True:
-			colour = input("Enter a colour: ")
+			givenColCount = len(colours) + 1	
+			colour = input(f"🎨 Enter colour {givenColCount}/3: ")
+
+			colour = colour.lower()  # convert input to lowercase for comparison
 
 			if colour in colours:
-				print("Colour already entered!")
+				print(f"👀 You have already entered {colour}!\n")
 				continue
 
 			if colour in validColours:
 				colours.append(colour)
 				break
 			else:
-				print(f"Invalid colour entered!\nMust be one of {validColours}")
+				print(f"😔 That's a funny looking colour! Must be one of {validColours}\n")
 
 	return gridSize, colours
 
@@ -68,30 +76,30 @@ def getUserInput():
 # size - the grid size of the patchwork (eg, 7 will draw 7x7)
 #####################
 def render(patchwork, size):
-	win = GraphWin("Patchwork", patchSize * size, patchSize * size)
+	winSize = patchSize * size
+	win = GraphWin("Patchwork", winSize, winSize)
+
+	win.setBackground("grey") # for testing to see the boundaries of the drawing area
 	
-	# top left coords of the patch
-	x = 0
-	y = 0
+	x, y = 0, 0 # top left coords of the patch
+	i = 0 # to keep track of which patch we're on
 
 	for patch in patchwork:
-		print(patch, x, y)
-		
-		if patch["type"] == 1:
-			drawPatch1(win, x, y, patch["colour"])
-		elif patch["type"] == 2:
-			drawPatch2(win, x, y, patch["colour"])
-		elif patch["type"] == 3:
-			drawPatch3(win, x, y, patch["colour"])
+
+		if patch["type"] == "N":
+			drawPatchN(win, x, y, patch["colour"])
+		elif patch["type"] == "P":
+			drawPatchP(win, x, y, patch["colour"])
+		elif patch["type"] == "F":
+			drawPatchF(win, x, y, patch["colour"])
 		else:
 			print("Invalid patch type specified!")
 			
-
-		# move onto next column
-		x += patchSize
-
+		x += patchSize  # move onto next column
+		i += 1 # increment patch counter
+		
 		# move onto the next row if we've reached the end of the row
-		if (x % size == 0) and (x != 0):
+		if (i % size == 0) and (i != 0):
 			x = 0
 			y += patchSize
 	
@@ -104,23 +112,40 @@ def render(patchwork, size):
 # For testing, these are a simple square, circle and triangle
 #####################
 
-def drawPatch1(win, x, y, colour):
+# To draw a plain coloured patch, just draw a square
+# N for "Nothing"
+def drawPatchN(win, x, y, colour):
 	square = Rectangle(Point(x, y), Point(x + patchSize, y + patchSize))
 	square.setFill(colour)
 	square.draw(win)
 	return square
 
-def drawPatch2(win, x, y, colour):
-	circle = Circle(Point(x + patchSize/2, y + patchSize/2), patchSize/2)
+# This is the patch that is the word "HI" tiled (#8)
+# P = Penultimate digit of student number
+def drawPatchP(win, x, y, colour):
+	# TODO: draw the "HI" patch
+	# in the meantime, just draw a circle
+	centre = Point(x + patchSize/2, y + patchSize/2)
+	circle = Circle(centre, patchSize/2)
 	circle.setFill(colour)
 	circle.draw(win)
 	return circle
 
-def drawPatch3(win, x, y, colour):
-	triangle = Polygon(Point(x, y), Point(x + patchSize, y), Point(x + patchSize/2, y + patchSize))
-	triangle.setFill(colour)
-	triangle.draw(win)
-	return triangle
+# This is the patch that looks like a slanted eye (#5)
+# F = Final digit of student number
+# Code copied verbatim from the programming worksheet
+def drawPatchF(win, x, y, colour):
+	# Top Half
+	for i in range(0, 110, 10):
+		line = Line(Point(i+x, y), Point(100+x, i+y))
+		line.setOutline(colour)
+		line.draw(win)
+
+	# Bottom Half
+	for i in range(0, 110, 10):
+		line = Line(Point(x, i+y), Point(i+x, 100+y))
+		line.setOutline(colour)
+		line.draw(win)
 
 #####################
 # Main, program entry
@@ -133,10 +158,10 @@ def main():
 	# generate random patchwork, for testing
 	for _ in range(0, gridSize*gridSize):
 		patchwork.append({
-			"type": randint(1, 3),
+			"type": ["F", "P", "N"][randint(0, 2)],
 			"colour": colours[randint(0, len(colours) - 1)]
 		})
 	
-	render(patchwork, 3)
+	render(patchwork, gridSize)
 
 main()
