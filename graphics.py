@@ -1,3 +1,4 @@
+# pylint: skip-file
 # graphics.py
 """Simple object oriented graphics library  
 
