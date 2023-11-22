@@ -10,7 +10,6 @@
 from graphics import *
 from random import randint # for testing
 
-
 #####################
 # CONSTANTS
 #####################
@@ -75,8 +74,8 @@ def getUserInput():
 
 # To draw a plain coloured patch, just draw a square
 # N for "Nothing"
-def drawPatchN(win, x, y, colour):
-	square = Rectangle(Point(x, y), Point(x + patchSize, y + patchSize))
+def drawPatchN(win, tlX, tlY, colour):
+	square = Rectangle(Point(tlX, tlY), Point(tlX + patchSize, tlY + patchSize))
 	square.setFill(colour)
 	square.draw(win)
 	return square
@@ -85,12 +84,12 @@ def drawPatchN(win, x, y, colour):
 # P = Penultimate digit of student number
 def drawPatchP(win, tlX, tlY, colour):	
 	tlX, tlY = int(tlX), int(tlY) # convert to ints to avoid float errors
-	xI, yI = 0, 0 # keep track of which row and column we're on, for the colours
+	colI, rowI = 0, 0 # keep track of which row and column we're on, for the colours
 
 	for y in range(tlY, tlY + 100, 25):
 		for x in range(tlX, tlX + 100, 50):
 			
-			if (xI + yI) % 2 == 0: # both should be even or odd
+			if (colI + rowI) % 2 == 0: # both should be even or odd
 				colours = [colour, "white"] # colour background, white foreground
 			else:
 				colours = ["white", colour] # white background, colour foreground
@@ -124,22 +123,22 @@ def drawPatchP(win, tlX, tlY, colour):
 			fgIRight.setFill(colours[1])
 			fgIRight.draw(win)
 
-			yI += 1 # increment column counter
-		xI += 1 # increment row counter
+			colI += 1 # increment column counter
+		rowI += 1 # increment row counter
 
 # This is the patch that looks like a slanted eye (#5)
 # F = Final digit of student number
 # Code copied verbatim from the programming worksheet
-def drawPatchF(win, x, y, colour):
+def drawPatchF(win, tlX, tlY, colour):
 	# Top Half
 	for i in range(0, 110, 10):
-		line = Line(Point(i+x, y), Point(100+x, i+y))
+		line = Line(Point(i+tlX, tlY), Point(100+tlX, i+tlY))
 		line.setOutline(colour)
 		line.draw(win)
 
 	# Bottom Half
 	for i in range(0, 110, 10):
-		line = Line(Point(x, i+y), Point(i+x, 100+y))
+		line = Line(Point(tlX, i+tlY), Point(i+tlX, 100+tlY))
 		line.setOutline(colour)
 		line.draw(win)
 
@@ -190,7 +189,6 @@ def render(patchwork, gridSize):
 
 	# for testing to see the boundaries of the drawing area
 	win.setBackground("grey")
-
 
 	colI, rowI = 0, 0 # keep track of which row and column we're on, to get patch from patchwork
 
