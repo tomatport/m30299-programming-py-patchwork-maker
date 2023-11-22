@@ -21,7 +21,7 @@ patchSize = 100 # size of each patch, in pixels
 # then returns these values as a tuple
 #####################
 def getUserInput():
-	return 9, ["blue", "orange", "red"] # for testing
+	# return 5, ["blue", "orange", "red"] # for testing
 
 	gridSize = None
 	validGrid = [5, 7, 9]
@@ -147,31 +147,73 @@ def drawPatchF(win, tlX, tlY, colour):
 # Compute the layout of the patches, using the provided images
 #####################
 def computePatchLayout(gridSize, colours):
-	# init patchwork array of all empty patches
+	# init patchwork array of all plain brown patches
+	# the patchwork is an array of rows, each row is an array of patches
+	# patchwork[row][patch] = patch dict
 	patchwork = []
 	
 	for row in range(0, gridSize):
 		patchwork.append([]) # each row is an array of patches
 		for _ in range(0, gridSize): # for each patch in the row
 			patchwork[row].append({
-				"type": None,
-				"colour": None
+				"type": "plain",
+				"colour": "brown"
 			})
 	# we now have an array of empty patches, corresponding to the grid size
 
 	# TODO: implement patch layout algorithms
 	# first, set patch types
 	# then, set correct colours
-	
-	# in the meantime, randomly assign patch types and colours
-	for row in patchwork:
-		for patch in row:
-			patch["type"] = ["F", "P", "N"][randint(0, 2)]
-			patch["colour"] = colours[randint(0, len(colours) - 1)]
 
-	# display the patchwork array, for testing
+	gridMid = gridSize // 2 # middle of the grid, since we use it a lot
+
+	# F PATCH COLUMNS
+	# every other column is an F patch
 	for row in patchwork:
-		print(row)
+		for i in range(0, gridSize, 2):
+			row[i]["type"] = "f"
+
+	# P PATCHES
+	# every other column is P, but offset by 1 vs the F patches
+	for row in patchwork:
+		for i in range(1, gridSize, 2):
+			row[i]["type"] = "p"
+
+	# the top and bottom of these columns are plain
+	# again, every other column, offset by 1
+	for i in range(1, gridSize, 2): # for each column
+		patchwork[0][i]["type"] = "plain" # top
+		patchwork[gridSize - 1][i]["type"] = "plain" # bottom
+
+	# ok, time for colours
+
+	# TOP LEFT CORNER (blue in example)
+	for row in range(0, gridMid):
+		for col in range(0, gridMid):
+			patchwork[row][col]["colour"] = colours[0]
+
+	# TOP RIGHT CORNER (red)
+	for row in range(0, gridMid): # top half
+		for col in range(gridMid + 1, gridSize): # right half, starting in centre + 1
+			patchwork[row][col]["colour"] = colours[2]
+
+	# BOTTOM LEFT CORNER (red)
+	for row in range(gridMid + 1, gridSize): # bottom half, starting in centre + 1
+		for col in range(0, gridMid): # left half
+			patchwork[row][col]["colour"] = colours[2]
+
+	# BOTTOM RIGHT CORNER (blue)
+	for row in range(gridMid + 1, gridSize): # bottom half, starting in centre + 1
+		for col in range(gridMid + 1, gridSize): # right half, starting in centre + 1
+			patchwork[row][col]["colour"] = colours[0]
+
+	# THE CROSS (orange)
+	# Vertical line
+	for row in range(0, gridSize):
+		patchwork[row][gridMid]["colour"] = colours[1]
+	# Horizontal line
+	for col in range(0, gridSize):
+		patchwork[gridMid][col]["colour"] = colours[1]
 
 	return patchwork
 
@@ -187,20 +229,20 @@ def render(patchwork, gridSize):
 	win = GraphWin("Patchwork", winSize, winSize)
 
 	# for testing to see the boundaries of the drawing area
-	win.setBackground("grey")
+	win.setBackground("white")
 
 	colI, rowI = 0, 0 # keep track of which row and column we're on, to get patch from patchwork
 
 	# x and y here are the actual coords of the patch, not the array indices
 	for y in range(0, winSize, patchSize): 
 		for x in range(0, winSize, patchSize):
-			patch = patchwork[colI][rowI]
+			patch = patchwork[rowI][colI]
 
-			if patch["type"] == "N":
+			if patch["type"] == "plain":
 				drawPatchPlain(win, x, y, patch["colour"])
-			elif patch["type"] == "P":
+			elif patch["type"] == "p":
 				drawPatchP(win, x, y, patch["colour"])
-			elif patch["type"] == "F":
+			elif patch["type"] == "f":
 				drawPatchF(win, x, y, patch["colour"])
 			else:
 				print("Invalid patch type specified!")
