@@ -68,20 +68,19 @@ def getUserInput():
 
 #####################
 # PATCH DRAWING
-# x and y are top left coords of the patch
-# For testing, these are a simple square, circle and triangle
+# tlX and tlY are top left coords of the patch
+# colour is the colour of the patch (or the elements within it)
 #####################
 
-# To draw a plain coloured patch, just draw a square
-# N for "Nothing"
-def drawPatchN(win, tlX, tlY, colour):
+# PLAIN PATCH
+# To draw a plain coloured patch, we just draw a square :)
+def drawPatchPlain(win, tlX, tlY, colour):
 	square = Rectangle(Point(tlX, tlY), Point(tlX + patchSize, tlY + patchSize))
 	square.setFill(colour)
 	square.draw(win)
-	return square
 
+# PENULTIMATE DIGIT PATCH
 # This is the patch that is the word "HI" tiled (#8)
-# P = Penultimate digit of student number
 def drawPatchP(win, tlX, tlY, colour):	
 	tlX, tlY = int(tlX), int(tlY) # convert to ints to avoid float errors
 	colI, rowI = 0, 0 # keep track of which row and column we're on, for the colours
@@ -126,8 +125,8 @@ def drawPatchP(win, tlX, tlY, colour):
 			colI += 1 # increment column counter
 		rowI += 1 # increment row counter
 
-# This is the patch that looks like a slanted eye (#5)
-# F = Final digit of student number
+# FINAL DIGIT PATCH
+# This is the patch that has grid lines surrounding a slanted eye shape (#5)
 # Code copied verbatim from the programming worksheet
 def drawPatchF(win, tlX, tlY, colour):
 	# Top Half
@@ -198,7 +197,7 @@ def render(patchwork, gridSize):
 			patch = patchwork[colI][rowI]
 
 			if patch["type"] == "N":
-				drawPatchN(win, x, y, patch["colour"])
+				drawPatchPlain(win, x, y, patch["colour"])
 			elif patch["type"] == "P":
 				drawPatchP(win, x, y, patch["colour"])
 			elif patch["type"] == "F":
