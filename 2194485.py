@@ -88,10 +88,73 @@ def makePatchPlain(tlX, tlY, colour):
 	patchElements.append(square)
 
 	return patchElements
-	
+
+
 
 # PENULTIMATE DIGIT PATCH
 # This is the patch that is the word "HI" tiled (#8)
+# There are 
+
+# HIColour makes the "HI" with the foreground as the colour, bg unfilled
+def makeHIColour(tlX, tlY, colour):
+	patchElements = []
+	tlX, tlY = int(tlX), int(tlY)
+
+	# H, not inverted
+	# left vertical
+	hLeft = Rectangle(Point(tlX, tlY), Point(tlX + 5, tlY + 25))
+	hLeft.setFill(colour)
+	patchElements.append(hLeft)
+	# right vertical
+	hRight = Rectangle(Point(tlX + 20, tlY), Point(tlX + 25, tlY + 25))
+	hRight.setFill(colour)
+	patchElements.append(hRight)
+	# horizontal
+	hHoriz = Rectangle(Point(tlX + 5, tlY + 10), Point(tlX + 20, tlY + 15))
+	hHoriz.setFill(colour)
+	patchElements.append(hHoriz)
+
+	# I, not inverted
+	# top horizontal
+	iTop = Rectangle(Point(tlX + 25, tlY), Point(tlX + 50, tlY + 5))
+	iTop.setFill(colour)
+	patchElements.append(iTop)
+	# bottom horizontal
+	iBottom = Rectangle(Point(tlX + 25, tlY + 20), Point(tlX + 50, tlY + 25))
+	iBottom.setFill(colour)
+	patchElements.append(iBottom)
+	# vertical
+	iVert = Rectangle(Point(tlX + 35, tlY + 5), Point(tlX + 40, tlY + 20))
+	iVert.setFill(colour)
+	patchElements.append(iVert)
+
+	return patchElements
+
+# HIInvert makes the "HI" with the leters unfilled, bg as the colour
+def makeHIInvert(tlX, tlY, colour):
+	patchElements = []
+	tlX, tlY = int(tlX), int(tlY)
+
+	# hide middle top and middle bottom of the bg to make the H
+	hTop = Rectangle(Point(tlX + 5, tlY), Point(tlX + 20, tlY + 10))
+	hTop.setFill(colour)
+	patchElements.append(hTop)
+
+	hBottom = Rectangle(Point(tlX + 5, tlY + 15), Point(tlX + 20, tlY + 25))
+	hBottom.setFill(colour)
+	patchElements.append(hBottom)
+
+	# hide middle left and middle right of the bg to make the I
+	iLeft = Rectangle(Point(tlX + 25, tlY + 5), Point(tlX + 35, tlY + 20))
+	iLeft.setFill(colour)
+	patchElements.append(iLeft)
+
+	iRight = Rectangle(Point(tlX + 40, tlY + 5), Point(tlX + 50, tlY + 20))
+	iRight.setFill(colour)
+	patchElements.append(iRight)
+
+	return patchElements
+
 def makePatchP(tlX, tlY, colour):
 	patchElements = []
 
@@ -100,43 +163,14 @@ def makePatchP(tlX, tlY, colour):
 
 	for y in range(tlY, tlY + 100, 25):
 		for x in range(tlX, tlX + 100, 50):
-			
-			if (colI + rowI) % 2 == 0: # both should be even or odd
-				colours = [colour, "white"] # colour background, white foreground
-
-				# background of the H
-				bgH = Rectangle(Point(x, y), Point(x + 25, y + 25))
-				bgH.setFill(colours[0])
-				patchElements.append(bgH)
-
-				# background of the I
-				bgI = Rectangle(Point(x + 25, y), Point(x + 50, y + 25))
-				bgI.setFill(colours[0])
-				patchElements.append(bgI)
+			if (colI + rowI) % 2 == 0:
+				patchElements.extend(makeHIColour(x, y, colour))
 			else:
-				colours = ["white", colour] # white background, colour foreground
+				patchElements.extend(makeHIInvert(x, y, colour))
 
-			# hide middle top and middle bottom of the bg to make the H
-			fgHTop = Rectangle(Point(x + 5, y), Point(x + 20, y + 10))
-			fgHTop.setFill(colours[1])
-			patchElements.append(fgHTop)
+			colI += 1
 
-			fgHBottom = Rectangle(Point(x + 5, y + 15), Point(x + 20, y + 25))
-			fgHBottom.setFill(colours[1])
-			patchElements.append(fgHBottom)
-
-			# hide middle left and middle right of the bg to make the I
-			fgILeft = Rectangle(Point(x + 25, y + 5), Point(x + 35, y + 20))
-			fgILeft.setFill(colours[1])
-			patchElements.append(fgILeft)
-
-			fgIRight = Rectangle(Point(x + 40, y + 5), Point(x + 50, y + 20))
-			fgIRight.setFill(colours[1])
-			patchElements.append(fgIRight)
-
-			colI += 1 # increment column counter
-		rowI += 1 # increment row counter
-
+		rowI += 1
 	return patchElements
 
 # FINAL DIGIT PATCH
@@ -302,7 +336,7 @@ def challengeCode(win, patchwork, gridSize, colours):
 		patch["border"].draw(win)
 	else:
 		for element in patch["elements"]:
-			element.setFill(computePatchColour(row, col, gridSize, colours))
+			#element.setFill(computePatchColour(row, col, gridSize, colours))
 			if patch["border"]:
 				patch["border"].undraw()
 				patch["border"] = None
