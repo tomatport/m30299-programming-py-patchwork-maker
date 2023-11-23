@@ -279,6 +279,7 @@ def computePatchColour(row, col, gridSize, colours):
 	# if we're here, we missed something
 	return "black"
 
+
 #####################
 # DRAW PATCHES
 # Draw the elements of each patch to the window
@@ -304,8 +305,22 @@ def main():
 
 	drawPatches(win, patchwork)
 
-	while True:
+	# testing challenge stuff
+	i = 0
+	while i < 5:
 		challengeCode(win, patchwork, gridSize, colours)
+		i += 1
+
+	key = win.getKey()
+	if key == "b":
+		for row in patchwork:
+			for patch in row:
+				if patch["selected"]:
+					for element in patch["elements"]:
+						element.setFill("brown")
+
+	win.getMouse()
+
 
 
 def challengeCode(win, patchwork, gridSize, colours):
@@ -340,5 +355,6 @@ def challengeCode(win, patchwork, gridSize, colours):
 			if patch["border"]:
 				patch["border"].undraw()
 				patch["border"] = None
+
 
 main()
