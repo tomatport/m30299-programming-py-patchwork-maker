@@ -15,6 +15,7 @@ from random import randint # for testing
 #####################
 patchSize = 100 # size of each patch, in pixels
 
+
 #####################
 # USER INPUT
 # getUserInput() requests the grid size and colours from the user,
@@ -71,6 +72,7 @@ def getUserInput():
 
 	return gridSize, colours
 
+
 #####################
 # PATCH DRAWING
 # tlX and tlY are top left coords of the patch
@@ -89,11 +91,8 @@ def makePatchPlain(tlX, tlY, colour):
 
 	return patchElements
 
-
-
 # PENULTIMATE DIGIT PATCH
 # This is the patch that is the word "HI" tiled (#8)
-# There are 
 
 # HIColour makes the "HI" with the foreground as the colour, bg unfilled
 def makeHIColour(tlX, tlY, colour):
@@ -155,6 +154,7 @@ def makeHIInvert(tlX, tlY, colour):
 
 	return patchElements
 
+# This actually draws the patch, using HIInvert and HIColour
 def makePatchP(tlX, tlY, colour):
 	patchElements = []
 
@@ -290,13 +290,14 @@ def drawPatches(win, patchwork):
 			for element in patch["elements"]:
 				element.draw(win)
 
+
 #####################
-# Main, program entry
+# MAIN
+# Program entry point
 #####################
 def main():
 	gridSize, colours = getUserInput()
 
-	# create window
 	winSize = patchSize * gridSize
 	win = GraphWin("Patchwork", winSize, winSize)
 	win.setBackground("white")	
@@ -305,56 +306,7 @@ def main():
 
 	drawPatches(win, patchwork)
 
-	# testing challenge stuff
-	i = 0
-	while i < 5:
-		challengeCode(win, patchwork, gridSize, colours)
-		i += 1
-
-	key = win.getKey()
-	if key == "b":
-		for row in patchwork:
-			for patch in row:
-				if patch["selected"]:
-					for element in patch["elements"]:
-						element.setFill("brown")
-
 	win.getMouse()
-
-
-
-def challengeCode(win, patchwork, gridSize, colours):
-	clicked = win.getMouse()
-
-	row, col = clicked.getY() // patchSize, clicked.getX() // patchSize
-	row, col = int(row), int(col)
-	
-	patch = patchwork[row][col]
-	patch["selected"] = not patch["selected"]
-
-	print(patch["selected"])
-
-	if patch["selected"]:
-		borderSize = patchSize // 20
-
-		# inset the border by borderSize pixels
-		borderTopLeft = Point(col * patchSize + borderSize,
-								row * patchSize + borderSize)
-		borderBottomRight = Point(
-			(col + 1) * patchSize - borderSize, (row + 1) * patchSize - borderSize)
-		border = Rectangle(borderTopLeft, borderBottomRight)
-		
-		border.setOutline("black")
-		border.setWidth(borderSize*2)
-		
-		patch["border"] = border
-		patch["border"].draw(win)
-	else:
-		for element in patch["elements"]:
-			#element.setFill(computePatchColour(row, col, gridSize, colours))
-			if patch["border"]:
-				patch["border"].undraw()
-				patch["border"] = None
 
 
 main()
