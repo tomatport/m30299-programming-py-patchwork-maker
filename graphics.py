@@ -1,4 +1,3 @@
-# pylint: skip-file
 # graphics.py
 """Simple object oriented graphics library  
 
@@ -432,7 +431,7 @@ class Transform:
 #   keys may be present in the configuration dictionary for a given item
 DEFAULT_CONFIG = {"fill":"",
       "outline":"black",
-      "width":"0",
+      "width":"1",
       "arrow":"none",
       "text":"",
       "justify":"center",

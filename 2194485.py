@@ -78,16 +78,11 @@ def getUserInput():
 
 ### PLAIN PATCH
 # To draw a plain coloured patch, we just draw a square :)
-def makePatchPlain(tlX, tlY, colour):
-	patchElements = []
-	
-	square = Rectangle(
-				Point(tlX, tlY),
-				Point(tlX + patchSize, tlY + patchSize))
+def makePatchPlain(tlX, tlY, colour)
+	square = Rectangle(Point(tlX, tlY), Point(tlX + patchSize, tlY + patchSize))
 	square.setFill(colour)
-	patchElements.append(square)
 
-	return patchElements
+	return [square] # only one element in this patch
 
 ### PENULTIMATE DIGIT PATCH
 # This is the patch that is the word "HI" tiled (#8)
@@ -276,6 +271,7 @@ def drawPatches(win, patchwork):
 	for row in patchwork:
 		for patch in row:
 			for element in patch["elements"]:
+				element.setWidth(0) # remove outlines (there is no "none" option, only 0 width)
 				element.draw(win)
 
 
