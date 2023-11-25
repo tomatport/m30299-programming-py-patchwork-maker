@@ -22,7 +22,7 @@ patchSize = 100 # size of each patch, in pixels
 # then returns these values as a tuple
 #####################
 def getUserInput():
-	return 9, ["blue", "orange", "red"] # for testing
+	# return 9, ["blue", "orange", "red"] # for testing
 
 	gridSize = None
 	validGrid = [5, 7, 9]
@@ -45,7 +45,6 @@ def getUserInput():
 			break
 		else:
 			print(f"😔 Your grid size must be one of {validGrid}\n" )
-			# can't use .join() to make this look nicer :(
 
 	
 	print(f"\n= COLOURS =\nChoose 3 from {validColours}")
@@ -63,6 +62,7 @@ def getUserInput():
 			if colour in validColours:
 				colours.append(colour)
 				break
+
 			else:
 				print(f"😔 That's a funny looking colour! Must be one of {validColours}\n")
 
