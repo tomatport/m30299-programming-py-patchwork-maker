@@ -78,7 +78,7 @@ def getUserInput():
 
 ### PLAIN PATCH
 # To draw a plain coloured patch, we just draw a square :)
-def makePatchPlain(tlX, tlY, colour)
+def makePatchPlain(tlX, tlY, colour):
 	square = Rectangle(Point(tlX, tlY), Point(tlX + patchSize, tlY + patchSize))
 	square.setFill(colour)
 
