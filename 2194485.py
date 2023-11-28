@@ -9,6 +9,11 @@
 
 from graphics import *
 
+# TODO: Copilot suggestions:
+# - move validGrid and validColours up to constants
+# - docstrings for functions
+# - makePatchP and makePatchF could have more descriptive names
+
 #####################
 # CONSTANTS
 #####################
