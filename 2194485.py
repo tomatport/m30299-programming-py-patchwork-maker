@@ -189,7 +189,7 @@ def computePatchLayout(gridSize, colours):
 
 def makeEmptyPatchwork(gridSize):
 	patchwork = []
-	
+
 	for row in range(0, gridSize):
 		patchwork.append([])
 		for _ in range(0, gridSize): # for each patch in the row
@@ -202,14 +202,13 @@ def makeEmptyPatchwork(gridSize):
 #################
 ### PATCH FILLING
 # "Fill" the spots where the respective patches should be
-
 def fillFinalPatches(patchwork, gridSize, colours):
 	for rowI in range(0, gridSize):  # every row
 		for colI in range(0, gridSize, 2):  # every other column
 			x, y = colI * patchSize, rowI * patchSize
 			patchwork[rowI][colI]["elements"] = makePatchFinal(
 				x, y, computePatchColour(rowI, colI, gridSize, colours))
-			
+
 	return patchwork
 
 def fillPenultimatePatches(patchwork, gridSize, colours):
@@ -296,6 +295,7 @@ def getUserInput():
 
 	return gridSize, colours
 
+
 #####################
 # MAIN
 #####################
@@ -304,7 +304,7 @@ def main():
 
 	winSize = patchSize * gridSize
 	win = GraphWin("Patchwork", winSize, winSize)
-	win.setBackground("white")	
+	win.setBackground("white")
 
 	patchwork = computePatchLayout(gridSize, colours)
 
