@@ -14,6 +14,10 @@ from graphics import *
 # - docstrings for functions
 # - makePatchP and makePatchF could have more descriptive names
 
+# TODO: generally:
+# - order of functions could probably be improved
+# - attempt challenge, after mani has looked over
+
 #####################
 # CONSTANTS
 #####################
