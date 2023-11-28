@@ -9,30 +9,21 @@
 
 from graphics import *
 
-# TODO: Copilot suggestions:
-# - move validGrid and validColours up to constants
-# - docstrings for functions
-# - makePatchP and makePatchF could have more descriptive names
-
-# TODO: generally:
-# - order of functions could probably be improved
-# - attempt challenge, after mani has looked over
-
 #####################
 # CONSTANTS
 #####################
 patchSize = 100 # size of each patch, in pixels
+validColours = ["red", "green", "blue", "magenta", "orange", "yellow", "cyan"]
+validGrid = [5, 7, 9]
 
 #####################
 # SHAPES
-# Wrappers for graphics.py's shapes, they return the shape
-# Only rectangles and lines are actually used
+# Wrappers for graphics.py's shapes, they return the shape object with the given parameters
 #####################
 def makeRectangle(tlX, tlY, brX, brY, colour):
 	rect = Rectangle(Point(tlX, tlY), Point(brX, brY))
 	rect.setFill(colour)
 	return rect
-
 
 def makeLine(tlX, tlY, brX, brY, colour):
 	line = Line(Point(tlX, tlY), Point(brX, brY))
@@ -41,76 +32,27 @@ def makeLine(tlX, tlY, brX, brY, colour):
 
 
 #####################
-# USER INPUT
-# getUserInput() requests the grid size and colours from the user,
-# then returns these values as a tuple
-#####################
-def getUserInput():
-	# return 9, ["blue", "orange", "red"] # for testing
-
-	gridSize = None
-	validGrid = [5, 7, 9]
-
-	colours = []
-	validColours = ["red", "green", "blue", "magenta", "orange", "yellow", "cyan"]
-
-	print(f"= GRID SIZE =\nChoose one from {validGrid}")
-	while True: # keep asking until valid
-		givenSize = input("🧱 Enter the grid size: ")
-
-		if not givenSize.isdigit():  # check if input is a number
-			print("😔 That doesn't look like a number...\n")
-			continue
-
-		# if it is a number, check if it's a valid grid size
-		givenSize = int(givenSize)
-		if givenSize in validGrid:
-			gridSize = givenSize
-			break
-		else:
-			print(f"😔 Your grid size must be one of {validGrid}\n" )
-
-	
-	print(f"\n= COLOURS =\nChoose 3 from {validColours}")
-	while len(colours) < 3: # keep going until we have three colours
-		while True:
-			givenColCount = len(colours) + 1	
-			colour = input(f"🎨 Enter colour {givenColCount}/3: ")
-
-			colour = colour.lower() # convert input to lowercase for comparison
-
-			if colour in colours:
-				print(f"👀 You have already entered {colour}!\n")
-				continue
-
-			if colour in validColours:
-				colours.append(colour)
-				break
-
-			else:
-				print(f"😔 That's a funny looking colour! Must be one of {validColours}\n")
-
-	return gridSize, colours
-
-
-#####################
 # PATCH DRAWING
 # tlX and tlY are top left coords of the patch
 # colour is the colour of the patch (or the elements within it)
-# they return a list of the elements drawn, so they can be modified later
+# they return a list of the elements drawn, so they can be draw/modified later
 #####################
 
-### PLAIN PATCH
+###############
+### Plain Patch
 # To draw a plain coloured patch, we just draw a square :)
 def makePatchPlain(tlX, tlY, colour):
 	square = makeRectangle(tlX, tlY, tlX + patchSize, tlY + patchSize, colour)
 	return [square] # only one element in this patch
 
-### PENULTIMATE DIGIT PATCH
-# This is the patch that is the word "HI" tiled (#8)
 
+###########################
+### Penultimate Digit Patch
+# This is the patch that is the word "HI" tiled (#8)
 # HIColour makes the "HI" with the foreground as the colour, bg unfilled
-def makeHIColour(tlX, tlY, colour):
+# HIInvert makes the "HI" with the leters unfilled, bg as the colour
+# makePatchPenultimate uses these two functions to create the patch
+def makeHIForeground(tlX, tlY, colour):
 	patchElements = []
 	tlX, tlY = int(tlX), int(tlY)
 
@@ -138,8 +80,7 @@ def makeHIColour(tlX, tlY, colour):
 
 	return patchElements
 
-# HIInvert makes the "HI" with the leters unfilled, bg as the colour
-def makeHIInvert(tlX, tlY, colour):
+def makeHIBackground(tlX, tlY, colour):
 	patchElements = []
 	tlX, tlY = int(tlX), int(tlY)
 
@@ -159,8 +100,7 @@ def makeHIInvert(tlX, tlY, colour):
 
 	return patchElements
 
-# This actually draws the patch, using HIInvert and HIColour
-def makePatchP(tlX, tlY, colour):
+def makePatchPenultimate(tlX, tlY, colour):
 	patchElements = []
 
 	tlX, tlY = int(tlX), int(tlY) # convert to ints to avoid float errors
@@ -169,19 +109,20 @@ def makePatchP(tlX, tlY, colour):
 	for y in range(tlY, tlY + 100, 25):
 		for x in range(tlX, tlX + 100, 50):
 			if (colI + rowI) % 2 == 0:
-				patchElements.extend(makeHIColour(x, y, colour))
+				patchElements.extend(makeHIForeground(x, y, colour))
 			else:
-				patchElements.extend(makeHIInvert(x, y, colour))
+				patchElements.extend(makeHIBackground(x, y, colour))
 
 			colI += 1
 
 		rowI += 1
 	return patchElements
 
-### FINAL DIGIT PATCH
+#####################
+### Final Digit Patch
 # This is the patch that has grid lines surrounding a slanted eye shape (#5)
 # Code copied verbatim from the programming worksheet
-def makePatchF(tlX, tlY, colour):
+def makePatchFinal(tlX, tlY, colour):
 	patchElements = []
 
 	# Top Half
@@ -198,13 +139,55 @@ def makePatchF(tlX, tlY, colour):
 
 
 #####################
+# PATCH COLOURS
+# Compute the colour that each patch needs to be
+# Based on where it is in the grid
+#####################
+def computePatchColour(row, col, gridSize, colours):
+	gridMid = gridSize // 2  # middle of the grid
+
+	# TOP LEFT CORNER (blue in example)
+	if row < gridMid and col < gridMid:
+		return colours[0]
+
+	# TOP RIGHT CORNER (red)
+	if row < gridMid and col > gridMid:
+		return colours[2]
+
+	# BOTTOM LEFT CORNER (red)
+	if row > gridMid and col < gridMid:
+		return colours[2]
+
+	# BOTTOM RIGHT CORNER (blue)
+	if row > gridMid and col > gridMid:
+		return colours[0]
+
+	# CROSS (orange)
+	if row == gridMid or col == gridMid:
+		return colours[1]
+
+	# if we're here, we missed something
+	return "black"
+
+
+#####################
 # PATCH LAYOUT
-# Compute the layout of the patches, using the provided images
+# computePatchLayout() figures out the layout of the patches, using the functions below
+# makeEmptyPatchwork() makes an empty array of patches
+# fillXPatches() adds elements to the patches, according to where each design should be positioned
 #####################
 def computePatchLayout(gridSize, colours):
-	# init patchwork array of all empty patches
-	# the patchwork is an array of rows, each row is an array of patches
-	# patchwork[row][patch] = patch dict
+	# make an array of empty patches
+	patchwork = makeEmptyPatchwork(gridSize)
+
+	# fill the patches with the correct elements
+	patchwork = fillFinalPatches(patchwork, gridSize, colours)
+	patchwork = fillPenultimatePatches(patchwork, gridSize, colours)
+	patchwork = fillPlainPatches(patchwork, gridSize, colours)
+
+	return patchwork
+
+def makeEmptyPatchwork(gridSize):
 	patchwork = []
 	
 	for row in range(0, gridSize):
@@ -212,70 +195,48 @@ def computePatchLayout(gridSize, colours):
 		for _ in range(0, gridSize): # for each patch in the row
 			patchwork[row].append({
 				"elements": [], # the elements that make up the patch, so we can modify them later
-				"selected": False, # whether the patch is selected (for challenge)
-				"border": None # used to store the border around the patch so it can be removed later
 			})
-	# we now have an array of empty patches, corresponding to the grid size
 
-	# F PATCH COLUMNS
-	for rowI in range(0, gridSize): # every row
-		for colI in range(0, gridSize, 2): # every other column
+	return patchwork
+
+#################
+### PATCH FILLING
+# "Fill" the spots where the respective patches should be
+
+def fillFinalPatches(patchwork, gridSize, colours):
+	for rowI in range(0, gridSize):  # every row
+		for colI in range(0, gridSize, 2):  # every other column
 			x, y = colI * patchSize, rowI * patchSize
-			patchwork[rowI][colI]["elements"] = makePatchF(x, y, computePatchColour(rowI, colI, gridSize, colours))
+			patchwork[rowI][colI]["elements"] = makePatchFinal(
+				x, y, computePatchColour(rowI, colI, gridSize, colours))
+			
+	return patchwork
 
-	# P PATCHES
+def fillPenultimatePatches(patchwork, gridSize, colours):
 	for rowI in range(0, gridSize): # every row
 		for colI in range(1, gridSize, 2): # every other column, but offset by 1
 			x, y = colI * patchSize, rowI * patchSize
-			patchwork[rowI][colI]["elements"] = makePatchP(x, y, computePatchColour(rowI, colI, gridSize, colours))
-			
+			patchwork[rowI][colI]["elements"] = makePatchPenultimate(x, y, computePatchColour(rowI, colI, gridSize, colours))
 
-	# the top and bottom of these columns are plain
-	# again, every other column, offset by 1
-	for colI in range(1, gridSize, 2): # every other column
+	return patchwork
+
+def fillPlainPatches(patchwork, gridSize, colours):
+	# the top and bottom of the columns of P patches are plain
+	for colI in range(1, gridSize, 2): # every other column, offset by 1
 		# top
 		x, y = colI * patchSize, 0
 		patchwork[0][colI]["elements"] = makePatchPlain(
 			x, y, computePatchColour(0, colI, gridSize, colours))
-		
-		#bottom
+
+		# bottom
 		x, y = colI * patchSize, (gridSize - 1) * patchSize
 		patchwork[gridSize - 1][colI]["elements"] = makePatchPlain(
 			x, y, computePatchColour((gridSize-1), colI, gridSize, colours))
 
-	return patchwork
-
-
-#####################
-# COLOUR COMPUTER
-# Compute the colour that each patch needs to be
-# Based on where it is in the grid
-#####################
-def computePatchColour(row, col, gridSize, colours):
-	gridMid = gridSize // 2 # middle of the grid
-
-	# TOP LEFT CORNER (blue in example)
-	if row < gridMid and col < gridMid: return colours[0]
-	
-	# TOP RIGHT CORNER (red)
-	if row < gridMid and col > gridMid: return colours[2]
-
-	# BOTTOM LEFT CORNER (red)
-	if row > gridMid and col < gridMid: return colours[2]
-	
-	# BOTTOM RIGHT CORNER (blue)
-	if row > gridMid and col > gridMid: return colours[0]
-
-	# CROSS (orange)
-	if row == gridMid or col == gridMid: return colours[1]
-	
-	# if we're here, we missed something
-	return "black"
-
 
 #####################
 # DRAW PATCHES
-# Draw the elements of each patch to the window
+# Draw the elements of each patch to a window
 #####################
 def drawPatches(win, patchwork):
 	for row in patchwork:
@@ -286,19 +247,68 @@ def drawPatches(win, patchwork):
 
 
 #####################
+# USER INPUT
+# getUserInput() requests the grid size and colours from the user,
+# then returns these values as a tuple
+#####################
+def getUserInput():
+	return 9, ["blue", "orange", "red"]  # for testing
+
+	global validColours, validGrid
+
+	gridSize = None
+	colours = []
+
+	print(f"= GRID SIZE =\nChoose one from {validGrid}")
+	while True:  # keep asking until valid
+		givenSize = input("🧱 Enter the grid size: ")
+
+		if not givenSize.isdigit():  # check if input is a number
+			print("😔 That doesn't look like a number...\n")
+			continue
+
+		# if it is a number, check if it's a valid grid size
+		givenSize = int(givenSize)
+		if givenSize in validGrid:
+			gridSize = givenSize
+			break
+		else:
+			print(f"😔 Your grid size must be one of {validGrid}\n")
+
+	print(f"\n= COLOURS =\nChoose 3 from {validColours}")
+	while len(colours) < 3:  # keep going until we have three colours
+		while True:
+			givenColCount = len(colours) + 1
+			colour = input(f"🎨 Enter colour {givenColCount}/3: ")
+
+			colour = colour.lower()  # convert input to lowercase for comparison
+
+			if colour in colours:
+				print(f"👀 You have already entered {colour}!\n")
+				continue
+
+			if colour in validColours:
+				colours.append(colour)
+				break
+
+			else:
+				print(f"😔 That's a funny looking colour! Must be one of {validColours}\n")
+
+	return gridSize, colours
+
+#####################
 # MAIN
-# Program entry point
 #####################
 def main():
-	gridSize, colours = getUserInput() # returns a tuple of grid size and colours, given by the user
+	gridSize, colours = getUserInput()
 
 	winSize = patchSize * gridSize
-	win = GraphWin("Patchwork", winSize, winSize) # create our beautiful window
+	win = GraphWin("Patchwork", winSize, winSize)
 	win.setBackground("white")	
 
-	patchwork = computePatchLayout(gridSize, colours) # computes the layout, including colours
+	patchwork = computePatchLayout(gridSize, colours)
 
-	drawPatches(win, patchwork) # draws the patches to the window from the patchwork array
+	drawPatches(win, patchwork)
 
 	win.getMouse()
 
