@@ -8,12 +8,27 @@
 # Repo: https://github.com/tomatport/m30299-programming-py-patchwork-maker
 
 from graphics import *
-from random import randint # for testing
 
 #####################
 # CONSTANTS
 #####################
 patchSize = 100 # size of each patch, in pixels
+
+#####################
+# SHAPES
+# Wrappers for graphics.py's shapes, they return the shape
+# Only rectangles and lines are actually used
+#####################
+def makeRectangle(tlX, tlY, brX, brY, colour):
+	rect = Rectangle(Point(tlX, tlY), Point(brX, brY))
+	rect.setFill(colour)
+	return rect
+
+
+def makeLine(tlX, tlY, brX, brY, colour):
+	line = Line(Point(tlX, tlY), Point(brX, brY))
+	line.setFill(colour)
+	return line
 
 
 #####################
@@ -79,9 +94,7 @@ def getUserInput():
 ### PLAIN PATCH
 # To draw a plain coloured patch, we just draw a square :)
 def makePatchPlain(tlX, tlY, colour):
-	square = Rectangle(Point(tlX, tlY), Point(tlX + patchSize, tlY + patchSize))
-	square.setFill(colour)
-
+	square = makeRectangle(tlX, tlY, tlX + patchSize, tlY + patchSize, colour)
 	return [square] # only one element in this patch
 
 ### PENULTIMATE DIGIT PATCH
@@ -94,30 +107,24 @@ def makeHIColour(tlX, tlY, colour):
 
 	# H, not inverted
 	# left vertical
-	hLeft = Rectangle(Point(tlX, tlY), Point(tlX + 5, tlY + 25))
-	hLeft.setFill(colour)
+	hLeft = makeRectangle(tlX, tlY, tlX + 5, tlY + 25, colour)
 	patchElements.append(hLeft)
 	# right vertical
-	hRight = Rectangle(Point(tlX + 20, tlY), Point(tlX + 25, tlY + 25))
-	hRight.setFill(colour)
+	hRight = makeRectangle(tlX + 20, tlY, tlX + 25, tlY + 25, colour)
 	patchElements.append(hRight)
 	# horizontal
-	hHoriz = Rectangle(Point(tlX + 5, tlY + 10), Point(tlX + 20, tlY + 15))
-	hHoriz.setFill(colour)
+	hHoriz = makeRectangle(tlX + 5, tlY + 10, tlX + 20, tlY + 15, colour)
 	patchElements.append(hHoriz)
 
 	# I, not inverted
 	# top horizontal
-	iTop = Rectangle(Point(tlX + 25, tlY), Point(tlX + 50, tlY + 5))
-	iTop.setFill(colour)
+	iTop = makeRectangle(tlX + 25, tlY, tlX + 50, tlY + 5, colour)
 	patchElements.append(iTop)
 	# bottom horizontal
-	iBottom = Rectangle(Point(tlX + 25, tlY + 20), Point(tlX + 50, tlY + 25))
-	iBottom.setFill(colour)
+	iBottom = makeRectangle(tlX + 25, tlY + 20, tlX + 50, tlY + 25, colour)
 	patchElements.append(iBottom)
 	# vertical
-	iVert = Rectangle(Point(tlX + 35, tlY + 5), Point(tlX + 40, tlY + 20))
-	iVert.setFill(colour)
+	iVert = makeRectangle(tlX + 35, tlY + 5, tlX + 40, tlY + 20, colour)
 	patchElements.append(iVert)
 
 	return patchElements
@@ -128,21 +135,17 @@ def makeHIInvert(tlX, tlY, colour):
 	tlX, tlY = int(tlX), int(tlY)
 
 	# hide middle top and middle bottom of the bg to make the H
-	hTop = Rectangle(Point(tlX + 5, tlY), Point(tlX + 20, tlY + 10))
-	hTop.setFill(colour)
+	hTop = makeRectangle(tlX + 5, tlY, tlX + 20, tlY + 10, colour)
 	patchElements.append(hTop)
 
-	hBottom = Rectangle(Point(tlX + 5, tlY + 15), Point(tlX + 20, tlY + 25))
-	hBottom.setFill(colour)
+	hBottom = makeRectangle(tlX + 5, tlY + 15, tlX + 20, tlY + 25, colour)
 	patchElements.append(hBottom)
 
 	# hide middle left and middle right of the bg to make the I
-	iLeft = Rectangle(Point(tlX + 25, tlY + 5), Point(tlX + 35, tlY + 20))
-	iLeft.setFill(colour)
+	iLeft = makeRectangle(tlX + 25, tlY + 5, tlX + 35, tlY + 20, colour)
 	patchElements.append(iLeft)
 
-	iRight = Rectangle(Point(tlX + 40, tlY + 5), Point(tlX + 50, tlY + 20))
-	iRight.setFill(colour)
+	iRight = makeRectangle(tlX + 40, tlY + 5, tlX + 50, tlY + 20, colour)
 	patchElements.append(iRight)
 
 	return patchElements
@@ -174,14 +177,12 @@ def makePatchF(tlX, tlY, colour):
 
 	# Top Half
 	for i in range(0, patchSize+10, 10):
-		line = Line(Point(i+tlX, tlY), Point(patchSize+tlX, i+tlY))
-		line.setOutline(colour)
+		line = makeLine(i+tlX, tlY, patchSize+tlX, i+tlY, colour)
 		patchElements.append(line)
 
 	# Bottom Half
 	for i in range(0, patchSize+10, 10):
-		line = Line(Point(tlX, i+tlY), Point(i+tlX, patchSize+tlY))
-		line.setOutline(colour)
+		line = makeLine(tlX, i+tlY, i+tlX, patchSize+tlY, colour)
 		patchElements.append(line)
 
 	return patchElements
@@ -280,15 +281,15 @@ def drawPatches(win, patchwork):
 # Program entry point
 #####################
 def main():
-	gridSize, colours = getUserInput()
+	gridSize, colours = getUserInput() # returns a tuple of grid size and colours, given by the user
 
 	winSize = patchSize * gridSize
-	win = GraphWin("Patchwork", winSize, winSize)
+	win = GraphWin("Patchwork", winSize, winSize) # create our beautiful window
 	win.setBackground("white")	
 
-	patchwork = computePatchLayout(gridSize, colours)
+	patchwork = computePatchLayout(gridSize, colours) # computes the layout, including colours
 
-	drawPatches(win, patchwork)
+	drawPatches(win, patchwork) # draws the patches to the window from the patchwork array
 
 	win.getMouse()
 
