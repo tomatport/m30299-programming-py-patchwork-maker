@@ -125,13 +125,11 @@ def makePatchPenultimate(tlX, tlY, colour):
 def makePatchFinal(tlX, tlY, colour):
 	patchElements = []
 
-	# Top Half
-	for i in range(0, patchSize+10, 10):
+	for i in range(0, patchSize+10, 10):  # Top Half
 		line = makeLine(i+tlX, tlY, patchSize+tlX, i+tlY, colour)
 		patchElements.append(line)
 
-	# Bottom Half
-	for i in range(0, patchSize+10, 10):
+	for i in range(0, patchSize+10, 10):  # Bottom Half
 		line = makeLine(tlX, i+tlY, i+tlX, patchSize+tlY, colour)
 		patchElements.append(line)
 
@@ -146,28 +144,22 @@ def makePatchFinal(tlX, tlY, colour):
 def computePatchColour(row, col, gridSize, colours):
 	gridMid = gridSize // 2  # middle of the grid
 
-	# TOP LEFT CORNER (blue in example)
-	if row < gridMid and col < gridMid:
+	if row < gridMid and col < gridMid:  # TOP LEFT CORNER (blue in example)
 		return colours[0]
 
-	# TOP RIGHT CORNER (red)
-	if row < gridMid and col > gridMid:
+	if row < gridMid and col > gridMid:  # TOP RIGHT CORNER (red)
 		return colours[2]
 
-	# BOTTOM LEFT CORNER (red)
-	if row > gridMid and col < gridMid:
+	if row > gridMid and col < gridMid:  # BOTTOM LEFT CORNER (red)
 		return colours[2]
 
-	# BOTTOM RIGHT CORNER (blue)
-	if row > gridMid and col > gridMid:
+	if row > gridMid and col > gridMid:  # BOTTOM RIGHT CORNER (blue)
 		return colours[0]
 
-	# CROSS (orange)
-	if row == gridMid or col == gridMid:
+	if row == gridMid or col == gridMid:  # CROSS (orange)
 		return colours[1]
 
-	# if we're here, we missed something
-	return "black"
+	return "black"  # if we're here, we missed something
 
 
 #####################
@@ -203,34 +195,42 @@ def makeEmptyPatchwork(gridSize):
 ### PATCH FILLING
 # "Fill" the spots where the respective patches should be
 def fillFinalPatches(patchwork, gridSize, colours):
+	filledPatchwork = patchwork
+
 	for rowI in range(0, gridSize):  # every row
 		for colI in range(0, gridSize, 2):  # every other column
 			x, y = colI * patchSize, rowI * patchSize
 			patchwork[rowI][colI]["elements"] = makePatchFinal(
 				x, y, computePatchColour(rowI, colI, gridSize, colours))
 
-	return patchwork
+	return filledPatchwork
 
 def fillPenultimatePatches(patchwork, gridSize, colours):
+	filledPatchwork = patchwork
+
 	for rowI in range(0, gridSize): # every row
 		for colI in range(1, gridSize, 2): # every other column, but offset by 1
 			x, y = colI * patchSize, rowI * patchSize
-			patchwork[rowI][colI]["elements"] = makePatchPenultimate(x, y, computePatchColour(rowI, colI, gridSize, colours))
+			filledPatchwork[rowI][colI]["elements"] = makePatchPenultimate(x, y, computePatchColour(rowI, colI, gridSize, colours))
 
-	return patchwork
+	return filledPatchwork
 
 def fillPlainPatches(patchwork, gridSize, colours):
+	filledPatchwork = patchwork
+
 	# the top and bottom of the columns of P patches are plain
 	for colI in range(1, gridSize, 2): # every other column, offset by 1
 		# top
 		x, y = colI * patchSize, 0
-		patchwork[0][colI]["elements"] = makePatchPlain(
+		filledPatchwork[0][colI]["elements"] = makePatchPlain(
 			x, y, computePatchColour(0, colI, gridSize, colours))
 
 		# bottom
 		x, y = colI * patchSize, (gridSize - 1) * patchSize
-		patchwork[gridSize - 1][colI]["elements"] = makePatchPlain(
+		filledPatchwork[gridSize - 1][colI]["elements"] = makePatchPlain(
 			x, y, computePatchColour((gridSize-1), colI, gridSize, colours))
+	
+	return filledPatchwork
 
 
 #####################
