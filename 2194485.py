@@ -11,6 +11,7 @@ from graphics import *
 
 # CONSTANTS
 PATCHSIZE = 100
+BORDERWIDTH = PATCHSIZE // 25 # 4 if PATCHSIZE is 100
 VALIDCOLOURS = ["red", "green", "blue", "magenta", "orange", "yellow", "cyan"]
 VALIDGRID = [5, 7, 9]
 
@@ -30,6 +31,7 @@ def makeRectangle(tlX, tlY, brX, brY, colour):
 	rect = Rectangle(Point(tlX, tlY), Point(brX, brY))
 	rect.setFill(colour)
 	return rect
+
 
 def makeLine(tlX, tlY, brX, brY, colour):
 	"""
@@ -66,6 +68,7 @@ def makePatchPlain(tlX, tlY, colour):
 
 	square = makeRectangle(tlX, tlY, tlX + PATCHSIZE, tlY + PATCHSIZE, colour)
 	return [square] # only one element in this patch
+
 
 # Penultimate Digit Patch
 def makeHIForeground(tlX, tlY, colour):
@@ -107,6 +110,7 @@ def makeHIForeground(tlX, tlY, colour):
 
 	return patchElements
 
+
 def makeHIBackground(tlX, tlY, colour):
 	"""
 		Creates the "HI" text with the given colour as the background, on a white foreground
@@ -137,6 +141,7 @@ def makeHIBackground(tlX, tlY, colour):
 	patchElements.append(iRight)
 
 	return patchElements
+
 
 def makePatchPenultimate(tlX, tlY, colour):
 	"""
@@ -252,6 +257,7 @@ def computePatchLayout(gridSize, colours):
 
 	return patchwork
 
+
 def makeEmptyPatchwork(gridSize):
 	"""
 		Makes an empty patchwork array
@@ -270,9 +276,12 @@ def makeEmptyPatchwork(gridSize):
 		for _ in range(0, gridSize): # for each patch in the row
 			patchwork[row].append({
 				"elements": [], # the elements that make up the patch, so we can modify them later
+				"selected": False, # whether the patch is selected or not (for the challenge)
+				"border": [] # the border around the patch (for the challenge)
 			})
 
 	return patchwork
+
 
 # PATCH FILLING
 def fillFinalPatches(patchwork, gridSize, colours):
@@ -298,6 +307,7 @@ def fillFinalPatches(patchwork, gridSize, colours):
 
 	return filledPatchwork
 
+
 def fillPenultimatePatches(patchwork, gridSize, colours):
 	"""
 		Fills in a given patchwork array with the penultimate digit patch design
@@ -319,6 +329,7 @@ def fillPenultimatePatches(patchwork, gridSize, colours):
 			filledPatchwork[rowI][colI]["elements"] = makePatchPenultimate(x, y, computePatchColour(rowI, colI, gridSize, colours))
 
 	return filledPatchwork
+
 
 def fillPlainPatches(patchwork, gridSize, colours):
 	"""
@@ -384,7 +395,7 @@ def getUserInput():
 			- colours (list): List of colours to use
 	"""
 
-	# return 9, ["blue", "orange", "red"]  # for testing
+	return 9, ["blue", "orange", "red"]  # for testing
 
 	global VALIDCOLOURS, VALIDGRID
 
@@ -428,6 +439,172 @@ def getUserInput():
 
 	return gridSize, colours
 
+# SELECTION MODE (challenge feature)
+def selectionMode(win, patchwork, gridSize):
+	"""
+		Handles the selection mode for the challenge feature
+
+		Parameters:
+			- win (GraphWin): Window to draw the patches to
+			- patchwork (2D array): Patchwork array to draw the patches from
+			- gridSize (int): Size of the grid (for the close button)
+
+		Returns:
+			- mode (string): The mode to enter next (edit or selection)
+	"""
+
+	clicked = win.getMouse()
+
+	# if we clicked the ok button, enter edit mode
+	if clicked.getX() < 30 and clicked.getY() < 30:
+		return "edit"
+	
+
+
+	# which patch did we click on?
+	rowI = int(clicked.getY() // PATCHSIZE)
+	colI = int(clicked.getX() // PATCHSIZE)
+	patch = patchwork[rowI][colI]
+
+	# figure out our top left X and Y cords
+	patchX = colI * PATCHSIZE
+	patchY = rowI * PATCHSIZE
+
+	patch["selected"] = not patch["selected"] # toggle selected state
+
+	# draw border around patch
+	if patch["selected"]:		
+		# inset border (by BORDERWIDTH)		
+		border = Rectangle(
+				Point(patchX + BORDERWIDTH, patchY + BORDERWIDTH),
+				Point(patchX + PATCHSIZE - BORDERWIDTH, patchY + PATCHSIZE - BORDERWIDTH)
+			)
+		border.setFill("")
+		border.setWidth(BORDERWIDTH*2)
+		border.setOutline("black")
+		
+		patch["border"] = border
+		patch["border"].draw(win)
+	else:
+		patch["border"].undraw()
+
+# EDIT MODE (challenge feature)
+def editMode(win, patchwork, mode):
+	"""
+		Handles the edit mode for the challenge feature
+
+		Parameters:
+			- win (GraphWin): Window to draw the patches to
+			- patchwork (2D array): Patchwork array to draw the patches from
+			- mode (string): Current mode (selection or edit)
+
+		Returns:
+			- mode (string): If user pressed "s", returns "selection" to switch to selection mode
+	"""
+
+	selectedPatches = getSelectedPatches(patchwork)
+	key = win.getKey()
+
+	match key:
+		case "s": # enter selection mode
+			return "selection"
+		
+		case "d": # deselect all selected patches
+			deselectAllPatches(patchwork)
+
+		# colours
+		case "r":
+			updatePatchColour(selectedPatches, "red")
+		case "g":
+			updatePatchColour(selectedPatches, "green")
+		case "b":
+			updatePatchColour(selectedPatches, "blue")
+		case "m":
+			updatePatchColour(selectedPatches, "magenta")
+		case "o":
+			updatePatchColour(selectedPatches, "orange")
+		case "y":
+			updatePatchColour(selectedPatches, "yellow")
+		case "c":
+			updatePatchColour(selectedPatches, "cyan")
+		
+	return "edit" # stay in edit mode
+
+		
+def updatePatchColour(patches, colour):
+	"""
+		Given a list of patches, set their new fill colour
+
+		Parameters:
+			- patches (list): List of patches to update
+			- colour (string): Colour to set the elements to
+		
+		Returns:
+			- None
+	"""
+	
+	for patch in patches:
+		for element in patch["elements"]:
+			element.setFill(colour)
+
+def getSelectedPatches(patchwork):
+	"""
+		Gets a list of all the selected patches in the given patchwork array
+
+		Parameters:
+			- patchwork (2D array): Patchwork array to get the selected patches from
+
+		Returns:
+			- List of selected patches
+	"""
+
+	selectedPatches = []
+
+	for row in patchwork:
+		for patch in row:
+			if patch["selected"]:
+				selectedPatches.append(patch)
+
+	return selectedPatches
+
+def deselectAllPatches(patchwork):
+	"""
+		Deselect (and undraw the border of) all patches in the given patchwork array
+		
+		Parameters:
+			- patchwork (2D array): Patchwork array to deselect the patches in
+
+		Returns:
+			- None
+	"""
+
+	for row in patchwork:
+		for patch in row:
+			patch["selected"] == False
+			if patch["border"]: patch["border"].undraw()
+
+def makeOkButton():
+	"""
+		Creates an OK button in the top left corner of the window
+		
+		Parameters:
+			- None
+
+		Returns:
+			- okButton (list): List of elements that make up the button
+	"""
+
+	buttonElements = []
+
+	buttonBG = Rectangle(Point(0, 0), Point(30, 30))
+	buttonBG.setFill("black")
+	buttonElements.append(buttonBG)
+
+	buttonText = Text(Point(15, 15), "OK")
+	buttonText.setTextColor("white")
+	buttonElements.append(buttonText)
+
+	return buttonElements
 
 # MAIN
 def main():
@@ -445,7 +622,38 @@ def main():
 
 	drawPatchElements(win, patchwork)
 
-	win.getMouse()
+	# Challenge Feature: Selecting and Modifying Patches
+	mode = "selection"
 
+	# text displaying the current mode
+	modeText = Text(Point(winSize//2, 10),  mode)
+	modeText.setTextColor("black")
+	modeText.draw(win)
+		
+	okButton = makeOkButton()
+
+	while True:
+		modeText.setText(mode)
+
+		if mode == "selection":
+			# in selection mode, we want the ok button
+			for element in okButton:
+				# draw if not already drawn
+				if element not in win.items: element.draw(win)
+
+			newMode = selectionMode(win, patchwork, gridSize)
+
+			if newMode: mode = newMode
+
+		elif mode == "edit":
+			# in edit mode, we don't want the ok button
+			for element in okButton: element.undraw()
+
+			newMode = editMode(win, patchwork, mode)
+
+			if newMode: mode = newMode
+
+
+			
 
 main()
