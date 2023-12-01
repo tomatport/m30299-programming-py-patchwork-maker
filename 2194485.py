@@ -451,7 +451,7 @@ def getUserInput():
 
 
 # CHALLENGE FEATURES (selection and edit mode)
-def challengeFeatures(win, patchwork, gridSize, winSize):
+def challengeFeatures(win, patchwork, winSize):
 	"""
 		Challenge features, including a selection and edit mode
 		Runs in an infinite loop until the close button pressed
@@ -459,7 +459,6 @@ def challengeFeatures(win, patchwork, gridSize, winSize):
 		Parameters:
 			- win (GraphWin): Window to draw the patches to
 			- patchwork (2D array): Patchwork array to draw the patches from
-			- gridSize (int): Size of the grid
 			- winSize (int): Size of the window
 		
 		Returns:
@@ -484,14 +483,12 @@ def challengeFeatures(win, patchwork, gridSize, winSize):
 Click on a patch to select it, click again to deselect it.
 
 = ✏️ IN EDIT MODE =
-Press a key to change the selected patches:
 - 's' to go back to selection mode
-- 'd' to deselect all patches
+- 'd' to deselect all patches	   
 
+Press a key to change the selected patches:
 - 'r,' 'g,' 'b,' 'm,' 'o,' 'y,' 'c' to change the colour of the selected patches
-
 - 'p,' 'f,' 'q' to change the design of the selected patches (penultimate, final, plain)
-
 - 'x' to have a party (randomise colours of all patches, not just selected ones)
 """)
 	
@@ -514,6 +511,7 @@ Press a key to change the selected patches:
 			# if we have clicked close
 			if clickedPoint.getX() > winSize - 60 and clickedPoint.getY() < 30:
 				win.close()
+				break
 
 			# otherwise, we have clicked a patch
 			patchwork = selectPatch(win, patchwork, clickedPoint)
@@ -805,6 +803,6 @@ def main():
 	drawPatchElements(win, patchwork)
 
 	# challenge features (runs infinitely until close pressed)
-	challengeFeatures(win, patchwork, gridSize, winSize)
+	challengeFeatures(win, patchwork, winSize)
 
 main()
