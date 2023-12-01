@@ -12,7 +12,7 @@ from random import randint # for the challenge feature
 
 # CONSTANTS
 PATCHSIZE = 100
-BORDERWIDTH = PATCHSIZE // 25 # 4 if PATCHSIZE is 100
+BORDERWIDTH = PATCHSIZE // 25 # 4 if PATCHSIZE is 100, for the challenge feature
 VALIDCOLOURS = ["red", "green", "blue", "magenta", "orange", "yellow", "cyan"]
 VALIDGRID = [5, 7, 9]
 
