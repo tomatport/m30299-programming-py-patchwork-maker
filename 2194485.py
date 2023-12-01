@@ -473,16 +473,13 @@ def challengeFeatures(win, patchwork, winSize):
 
 	mode = "selection"
 
-	modeText = Text(Point(winSize//2, 10),  mode)
-	modeText.setTextColor("black")
-	modeText.draw(win)
-
 	# instructions
 	print("""
 = 👆 IN SELECTION MODE =
 Click on a patch to select it, click again to deselect it.
+Press "OK" in the upper left to enter edit mode.
 
-= ✏️ IN EDIT MODE =
+= ✏️  IN EDIT MODE =
 - 's' to go back to selection mode
 - 'd' to deselect all patches	   
 
@@ -493,12 +490,11 @@ Press a key to change the selected patches:
 """)
 	
 	while True:
-		modeText.setText(f"{mode.upper()} mode")
-
 		if mode == "selection":		
-			# in selection mode, we want the ok button
+			# in selection mode, we want the ok button and the close button
 			for element in okButton:
-				# draw if not already drawn
+				if element not in win.items: element.draw(win)
+			for element in closeButton:
 				if element not in win.items: element.draw(win)
 
 			clickedPoint = win.getMouse()
@@ -517,8 +513,9 @@ Press a key to change the selected patches:
 			patchwork = selectPatch(win, patchwork, clickedPoint)
 		
 		elif mode == "edit":
-			# in edit mode, we don't want the ok button
+			# in edit mode, we don't want the ok button, or the close button
 			for element in okButton: element.undraw()
+			for element in closeButton: element.undraw()
 
 			keyPressed = win.getKey()
 			
@@ -554,6 +551,8 @@ def makeOkButton():
 	# text
 	text = Text(Point(15, 15), "OK")
 	text.setTextColor("white")
+	text.setFace("courier")
+	text.setStyle("bold")
 	okButton.append(text)
 
 	return okButton
@@ -579,6 +578,7 @@ def makeCloseButton(winSize):
 	# text
 	text = Text(Point(winSize - 30, 15), "Close")
 	text.setTextColor("red")
+	text.setFace("courier")
 	closeButton.append(text)
 
 	return closeButton
