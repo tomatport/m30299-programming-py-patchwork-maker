@@ -415,6 +415,7 @@ def getUserInput():
 	print(f"= GRID SIZE =\nChoose one from {VALIDGRID}")
 	while True:  # keep asking until valid
 		givenSize = input("🧱 Enter the grid size: ")
+		givenSize = givenSize.strip()  # remove whitespace
 
 		if not givenSize.isdigit():  # check if input is a number
 			print("😔 That doesn't look like a number...\n")
@@ -432,9 +433,10 @@ def getUserInput():
 	while len(colours) < 3:  # keep going until we have three colours
 		while True:
 			givenColCount = len(colours) + 1
+			
 			colour = input(f"🎨 Enter colour {givenColCount}/3: ")
 
-			colour = colour.lower()  # convert input to lowercase for comparison
+			colour = colour.strip().lower()  # lowercase, remove whitespace
 
 			if colour in colours:
 				print(f"👀 You have already entered {colour}!\n")
