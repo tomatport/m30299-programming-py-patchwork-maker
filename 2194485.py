@@ -11,7 +11,7 @@ from graphics import *
 from random import randint # for the challenge feature
 
 # CONSTANTS
-PATCHSIZE = 111
+PATCHSIZE = 100
 VALIDCOLOURS = ["red", "green", "blue", "magenta", "orange", "yellow", "cyan"]
 VALIDGRID = [5, 7, 9]
 # Challenge Feature Constants
