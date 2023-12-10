@@ -11,10 +11,12 @@ from graphics import *
 from random import randint # for the challenge feature
 
 # CONSTANTS
-PATCHSIZE = 100
-BORDERWIDTH = PATCHSIZE // 25 # 4 if PATCHSIZE is 100, for the challenge feature
+PATCHSIZE = 111
 VALIDCOLOURS = ["red", "green", "blue", "magenta", "orange", "yellow", "cyan"]
 VALIDGRID = [5, 7, 9]
+# Challenge Feature Constants
+BORDERWIDTH = PATCHSIZE / 25 # 4 if PATCHSIZE is 100
+BUTTONSIZE = 30 # size of the buttons
 
 # SHAPES
 def makeRectangle(tlX, tlY, brX, brY, colour):
@@ -86,27 +88,32 @@ def makeHIForeground(tlX, tlY, colour):
 
 	patchElements = []
 	tlX, tlY = int(tlX), int(tlY)
+	increment = PATCHSIZE / 20 # = 5, if PATCHSIZE is 100
 
 	# H, not inverted
 	# left vertical
-	hLeft = makeRectangle(tlX, tlY, tlX + 5, tlY + 25, colour)
+	hLeft = makeRectangle(tlX, tlY, tlX + increment, tlY + increment*5, colour)
 	patchElements.append(hLeft)
 	# right vertical
-	hRight = makeRectangle(tlX + 20, tlY, tlX + 25, tlY + 25, colour)
+	hRight = makeRectangle(tlX + increment*4, tlY, tlX + increment*5,
+						   tlY + increment*5, colour)
 	patchElements.append(hRight)
 	# horizontal
-	hHoriz = makeRectangle(tlX + 5, tlY + 10, tlX + 20, tlY + 15, colour)
+	hHoriz = makeRectangle(tlX + increment, tlY + increment*2,
+						   tlX + increment*4, tlY + increment*3, colour)
 	patchElements.append(hHoriz)
 
 	# I, not inverted
 	# top horizontal
-	iTop = makeRectangle(tlX + 25, tlY, tlX + 50, tlY + 5, colour)
+	iTop = makeRectangle(tlX + increment*5, tlY, tlX + increment*10, tlY + increment, colour)
 	patchElements.append(iTop)
 	# bottom horizontal
-	iBottom = makeRectangle(tlX + 25, tlY + 20, tlX + 50, tlY + 25, colour)
+	iBottom = makeRectangle(tlX + increment*5, tlY +
+	                        increment*4, tlX + increment*10, tlY + increment*5, colour)
 	patchElements.append(iBottom)
 	# vertical
-	iVert = makeRectangle(tlX + 35, tlY + 5, tlX + 40, tlY + 20, colour)
+	iVert = makeRectangle(tlX + increment*7, tlY + increment,
+	                      tlX + increment*8, tlY + increment*4, colour)
 	patchElements.append(iVert)
 
 	return patchElements
@@ -126,19 +133,24 @@ def makeHIBackground(tlX, tlY, colour):
 
 	patchElements = []
 	tlX, tlY = int(tlX), int(tlY)
+	increment = PATCHSIZE / 20 # = 5, if PATCHSIZE is 100
 
-	# hide middle top and middle bottom of the bg to make the H
-	hTop = makeRectangle(tlX + 5, tlY, tlX + 20, tlY + 10, colour)
+	# hide top left and bottom right of the bg to make the H
+	hTop = makeRectangle(tlX + increment, tlY, tlX + increment*4,
+					  	 tlY + increment*2, colour)
 	patchElements.append(hTop)
 
-	hBottom = makeRectangle(tlX + 5, tlY + 15, tlX + 20, tlY + 25, colour)
+	hBottom = makeRectangle(tlX + increment, tlY + increment*3,
+							tlX + increment*4, tlY + increment*5, colour)
 	patchElements.append(hBottom)
 
 	# hide middle left and middle right of the bg to make the I
-	iLeft = makeRectangle(tlX + 25, tlY + 5, tlX + 35, tlY + 20, colour)
+	iLeft = makeRectangle(tlX + increment*5, tlY + increment,
+	                      tlX + increment*7, tlY + increment*4, colour)
 	patchElements.append(iLeft)
 
-	iRight = makeRectangle(tlX + 40, tlY + 5, tlX + 50, tlY + 20, colour)
+	iRight = makeRectangle(tlX + increment*8, tlY +
+	                       increment, tlX + increment*10, tlY + increment*4, colour)
 	patchElements.append(iRight)
 
 	return patchElements
@@ -162,8 +174,8 @@ def makePatchPenultimate(tlX, tlY, colour):
 	tlX, tlY = int(tlX), int(tlY) # convert to ints to avoid float errors
 	colI, rowI = 0, 0 # keep track of which row and column we're on, for the colours
 
-	for y in range(tlY, tlY + 100, 25):
-		for x in range(tlX, tlX + 100, 50):
+	for y in range(tlY, tlY + PATCHSIZE, PATCHSIZE // 4):
+		for x in range(tlX, tlX + PATCHSIZE, PATCHSIZE // 2):
 			if (colI + rowI) % 2 == 0:
 				patchElements.extend(makeHIForeground(x, y, colour))
 			else:
@@ -502,12 +514,12 @@ Press a key to change the selected patches:
 			clickedPoint = win.getMouse()
 
 			# if we have clicked ok
-			if clickedPoint.getX() < 30 and clickedPoint.getY() < 30:
+			if clickedPoint.getX() < BUTTONSIZE and clickedPoint.getY() < BUTTONSIZE:
 				mode = "edit"
 				continue
 
 			# if we have clicked close
-			if clickedPoint.getX() > winSize - 60 and clickedPoint.getY() < 30:
+			if clickedPoint.getX() > winSize - BUTTONSIZE*2 and clickedPoint.getY() < BUTTONSIZE:
 				win.close()
 				break
 
@@ -546,12 +558,12 @@ def makeOkButton():
 	okButton = []
 
 	# background
-	bg = Rectangle(Point(0, 0), Point(30, 30))
+	bg = Rectangle(Point(0, 0), Point(BUTTONSIZE, BUTTONSIZE))
 	bg.setFill("black")
 	okButton.append(bg)
 
 	# text
-	text = Text(Point(15, 15), "OK")
+	text = Text(Point(BUTTONSIZE//2, BUTTONSIZE//2), "OK")
 	text.setTextColor("white")
 	text.setFace("courier")
 	text.setStyle("bold")
@@ -573,12 +585,12 @@ def makeCloseButton(winSize):
 	closeButton = []
 
 	# background
-	bg = Rectangle(Point(winSize - 60, 0), Point(winSize, 30))
+	bg = Rectangle(Point(winSize - BUTTONSIZE*2, 0), Point(winSize, BUTTONSIZE))
 	bg.setFill("black")
 	closeButton.append(bg)
 
 	# text
-	text = Text(Point(winSize - 30, 15), "Close")
+	text = Text(Point(winSize - BUTTONSIZE, BUTTONSIZE//2), "Close")
 	text.setTextColor("red")
 	text.setFace("courier")
 	closeButton.append(text)
